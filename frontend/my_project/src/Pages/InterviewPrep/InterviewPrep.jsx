@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import moment from "moment";
 import { AnimatePresence, motion } from "framer-motion";
-import { LuCircleAlert, LuListCollapse } from "react-icons/lu";
+import { LuCircleAlert } from "react-icons/lu";
 import SpinnerLoader from "../../components/Loader/SpinnerLoader";
 import toast from "react-hot-toast";
 import axiosInstance from "../../utils/axiosInstance";
@@ -13,11 +13,10 @@ import RoleInfoHeader from "../../components/RoleHeader";
 import QuestionCard from "../../components/cards/QuestionCard";
 import Drawer from "../../components/Drawer";
 import SkeletonLoader from "../../components/Loader/SkeletonLoader";
-import AIResponsePreview from "../../components/AIResponsePreview"; // ✅ fixed path
+import AIResponsePreview from "../../components/AIResponsePreview";
 
 const InterviewPrep = () => {
   const { sessionId } = useParams();
-  const navigate = useNavigate();
 
   const [sessionData, setSessionData] = useState(null);
   const [openLeanMoreDrawer, setOpenLeanMoreDrawer] = useState(false);
@@ -27,17 +26,13 @@ const InterviewPrep = () => {
   const [explanation, setExplanation] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Fetch session data by session id
   const fetchSessionDetailsById = async () => {
     try {
       setIsLoading(true);
       const response = await axiosInstance.get(
         API_PATHS.SESSION.GET_ONE(sessionId)
       );
-
-      if (response.data?.session) {
-        setSessionData(response.data.session);
-      }
+      if (response.data?.session) setSessionData(response.data.session);
     } catch (error) {
       console.error("Error fetching session:", error);
       toast.error("Failed to fetch session details");
@@ -46,7 +41,11 @@ const InterviewPrep = () => {
     }
   };
 
-  // Generate Concept Explanation
+  useEffect(() => {
+    if (sessionId) fetchSessionDetailsById();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
+
   const generateConceptExplanation = async (question) => {
     try {
       setErrorMsg("");
@@ -59,34 +58,30 @@ const InterviewPrep = () => {
         { question }
       );
 
-      if (response.data) {
-        setExplanation(response.data);
+      if (response.data?.data) {
+        setExplanation({ explanation: response.data.data });
+      } else {
+        setErrorMsg("No explanation returned from server");
       }
     } catch (error) {
-      setExplanation(null);
+      console.error("Error generating explanation:", error);
       setErrorMsg("Failed to generate explanation. Try again later");
-      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Pin Question
   const toggleQuestionPinStatus = async (questionId) => {
     try {
       const response = await axiosInstance.post(
         API_PATHS.QUESTION.PIN(questionId)
       );
-
-      if (response.data?.question) {
-        fetchSessionDetailsById();
-      }
+      if (response.data?.question) fetchSessionDetailsById();
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error pinning/unpinning question:", error);
     }
   };
 
-  // Add more questions to a session
   const uploadMoreQuestions = async () => {
     try {
       setIsUpdatedLoader(true);
@@ -104,12 +99,6 @@ const InterviewPrep = () => {
       setIsUpdatedLoader(false);
     }
   };
-
-  useEffect(() => {
-    if (sessionId) {
-      fetchSessionDetailsById();
-    }
-  }, [sessionId]);
 
   return (
     <DashboardLayout>
@@ -133,21 +122,17 @@ const InterviewPrep = () => {
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-4">Interview Q & A</h2>
 
-            <div className="grid grid-cols-12 gap-4">
+            {/* Vertical list — one question per row */}
+            <div className="flex flex-col gap-4">
               <AnimatePresence>
                 {sessionData?.questions?.map((data, index) => (
                   <motion.div
                     key={data._id || index}
-                    initial={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{
-                      duration: 0.3,
-                      type: "spring",
-                      stiffness: 100,
-                      delay: index * 0.1,
-                      damping: 15,
-                    }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.18, delay: index * 0.02 }}
+                    className="w-full"
                   >
                     <QuestionCard
                       question={data.question}
@@ -162,30 +147,19 @@ const InterviewPrep = () => {
                 ))}
               </AnimatePresence>
 
-              {/* ✅ Load More Button */}
-              <div className="col-span-12 flex justify-center mt-4">
+              {/* Load More */}
+              <div className="flex justify-center mt-4">
                 <button
                   onClick={uploadMoreQuestions}
                   disabled={isLoading || isUpdatedLoader}
                   className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
                 >
-                  {isUpdatedLoader ? (
-                    <>
-                      <SpinnerLoader /> {/* ✅ removed size prop */}
-                      <span>Loading...</span>
-                    </>
-                  ) : (
-                    <>
-                      <LuListCollapse />
-                      <span>Load More Questions</span>
-                    </>
-                  )}
+                  {isUpdatedLoader ? <SpinnerLoader /> : "Load More Questions"}
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Drawer for explanation */}
           <Drawer
             isOpen={openLeanMoreDrawer}
             onClose={() => setOpenLeanMoreDrawer(false)}

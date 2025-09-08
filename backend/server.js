@@ -19,7 +19,8 @@ console.log("Loaded MONGO_URI:", process.env.MONGO_URI);
 
  
 app.use(cors({
-    origin: "*",
+      origin: "*", // your frontend URL
+
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
 }));
