@@ -5,18 +5,18 @@ const Modal = ({ children, isOpen, onClose, hideHeader }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center
+                 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
       aria-hidden={!isOpen}
     >
-      <div className="bg-white rounded-xl shadow-lg w-11/12 max-w-lg relative">
+      <div className="bg-gray-900 text-gray-100 rounded-xl shadow-xl w-11/12 max-w-lg relative overflow-hidden">
         {/* Header with close button */}
         {!hideHeader && (
-          <div className="flex justify-between items-center border-b p-4">
-            {/* <h3 className="text-lg font-semibold">Modal</h3> */}
+          <div className="flex justify-between items-center border-b border-gray-700 p-4">
             <button
               onClick={onClose}
               aria-label="Close modal"
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-400 hover:text-white transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

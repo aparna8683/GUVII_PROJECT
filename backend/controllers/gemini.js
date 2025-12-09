@@ -1,53 +1,39 @@
-import 'dotenv/config';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
+dotenv.config();
+import Groq from "groq-sdk";
 
-const API_KEY = process.env.GEMINI_API_KEY;
-console.log("GEMINI_API_KEY:", API_KEY);
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const genAI = new GoogleGenerativeAI(API_KEY);
-const MODEL_NAME = "gemini-1.5-flash";
+// ❗ New valid model
+const MODEL_NAME = "llama-3.3-70b-versatile";
 
 export async function runGemini(prompt) {
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-
-    const chat = model.startChat({
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 1024,
-      },
-      history: [],
+    const response = await client.chat.completions.create({
+      model: MODEL_NAME,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
     });
 
-    const result = await chat.sendMessage(prompt);
+    const output =
+      response?.choices?.[0]?.message?.content?.trim() ||
+      "No text found";
 
-    // ✅ Safely extract text
-    let text = "No response generated.";
-    if (result?.response?.candidates?.[0]?.content?.parts?.[0]?.text) {
-      text = result.response.candidates[0].content.parts[0].text;
-    } else if (typeof result?.response?.text === "function") {
-      text = result.response.text();
-    } else if (typeof result?.response?.text === "string") {
-      text = result.response.text;
-    }
-
-    return text.trim();
+    return output;
   } catch (error) {
-    console.error("runGemini error:", error);
-    return "Error: " + (error.message || "Something went wrong with Gemini API");
+    console.error("runGemini (Groq) error:", error);
+    return "Error calling Groq API.";
   }
 }
 
-// ✅ Test standalone
 if (import.meta.url === `file://${process.argv[1]}`) {
   (async () => {
-    try {
-      console.log("Testing Gemini API...");
-      const testPrompt = "Explain AI in simple words";
-      const response = await runGemini(testPrompt);
-      console.log("Gemini response:", response);
-    } catch (err) {
-      console.error("Gemini test failed:", err);
-    }
+    const test = await runGemini("Explain AI simply");
+    console.log("Groq Response:", test);
   })();
 }

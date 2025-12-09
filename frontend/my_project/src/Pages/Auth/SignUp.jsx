@@ -101,7 +101,7 @@ const SignUp = ({ setCurrentPage }) => {
           onChange={(e) => setFullName(e.target.value)}
           className="border border-amber-200 bg-white/80 backdrop-blur rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
           required
-        />
+        /> 
 
         {/* Email */}
         <Input

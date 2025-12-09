@@ -1,5 +1,7 @@
 import { questionAnswerPrompt, conceptExplainPrompt } from "../utils/prompts.js";
 import { runGemini } from "./gemini.js";
+// import { conceptExplainPrompt } from "../utils/prompts.js";
+
 
 // Interview Questions
 export const generateInterviewQuestions = async (req, res) => {

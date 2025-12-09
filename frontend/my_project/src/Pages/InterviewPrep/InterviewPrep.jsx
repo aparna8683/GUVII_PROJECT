@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import moment from "moment";
 import { AnimatePresence, motion } from "framer-motion";
 import { LuCircleAlert } from "react-icons/lu";
-import SpinnerLoader from "../../components/Loader/SpinnerLoader";
 import toast from "react-hot-toast";
+
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPath";
 
@@ -12,6 +12,7 @@ import DashboardLayout from "../../components/Layouts/DashboardLayout";
 import RoleInfoHeader from "../../components/RoleHeader";
 import QuestionCard from "../../components/cards/QuestionCard";
 import Drawer from "../../components/Drawer";
+import SpinnerLoader from "../../components/Loader/SpinnerLoader";
 import SkeletonLoader from "../../components/Loader/SkeletonLoader";
 import AIResponsePreview from "../../components/AIResponsePreview";
 
@@ -19,13 +20,13 @@ const InterviewPrep = () => {
   const { sessionId } = useParams();
 
   const [sessionData, setSessionData] = useState(null);
-  const [openLeanMoreDrawer, setOpenLeanMoreDrawer] = useState(false);
+  const [openLearnMoreDrawer, setOpenLearnMoreDrawer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdatedLoader, setIsUpdatedLoader] = useState(false);
-
   const [explanation, setExplanation] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Fetch session details
   const fetchSessionDetailsById = async () => {
     try {
       setIsLoading(true);
@@ -46,12 +47,13 @@ const InterviewPrep = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
+  // Generate explanation for a question
   const generateConceptExplanation = async (question) => {
     try {
       setErrorMsg("");
       setExplanation(null);
       setIsLoading(true);
-      setOpenLeanMoreDrawer(true);
+      setOpenLearnMoreDrawer(true);
 
       const response = await axiosInstance.post(
         API_PATHS.AI.GENERATE_EXPLANATION,
@@ -71,6 +73,7 @@ const InterviewPrep = () => {
     }
   };
 
+  // Pin/Unpin question
   const toggleQuestionPinStatus = async (questionId) => {
     try {
       const response = await axiosInstance.post(
@@ -82,6 +85,7 @@ const InterviewPrep = () => {
     }
   };
 
+  // Load more questions
   const uploadMoreQuestions = async () => {
     try {
       setIsUpdatedLoader(true);
@@ -102,10 +106,12 @@ const InterviewPrep = () => {
 
   return (
     <DashboardLayout>
+      {/* Main Loader */}
       {isLoading && <SpinnerLoader />}
 
       {sessionData && (
         <>
+          {/* Header */}
           <RoleInfoHeader
             role={sessionData.role || ""}
             topicsToFocus={sessionData.topicsToFocus || ""}
@@ -119,10 +125,9 @@ const InterviewPrep = () => {
             }
           />
 
+          {/* Questions List */}
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-4">Interview Q & A</h2>
-
-            {/* Vertical list — one question per row */}
             <div className="flex flex-col gap-4">
               <AnimatePresence>
                 {sessionData?.questions?.map((data, index) => (
@@ -160,9 +165,10 @@ const InterviewPrep = () => {
             </div>
           </div>
 
+          {/* Drawer for Explanation */}
           <Drawer
-            isOpen={openLeanMoreDrawer}
-            onClose={() => setOpenLeanMoreDrawer(false)}
+            isOpen={openLearnMoreDrawer}
+            onClose={() => setOpenLearnMoreDrawer(false)}
             title={!isLoading && explanation?.title}
           >
             {errorMsg && (

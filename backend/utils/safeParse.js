@@ -7,18 +7,20 @@ export function safeParseJSON(raw) {
                 .replace(/```$/, "")
                 .trim();
 
-  // Try normal JSON parse
+  // Replace literal newlines inside strings with \n
+  text = text.replace(/"\s*([^"]*?)\s*"/gs, (match) => {
+    return match.replace(/\n/g, "\\n");
+  });
+
   try {
     return JSON.parse(text);
   } catch {
-    // Extract first JSON object or array in the text
     const match = text.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
     if (match) {
       try {
         return JSON.parse(match[0]);
       } catch {}
     }
-    // fallback to raw text
     return raw;
   }
 }

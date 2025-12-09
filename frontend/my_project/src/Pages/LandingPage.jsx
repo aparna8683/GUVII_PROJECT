@@ -103,7 +103,7 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="text-center py-10 text-gray-600 text-sm">
         Made with ❤️ by <span className="font-bold">NextGen Career AI</span>.
-        Level up your career 🚀
+        Level up your career 
       </footer>
 
       {/* Auth Modal */}

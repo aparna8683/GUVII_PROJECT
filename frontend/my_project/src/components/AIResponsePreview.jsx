@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { LuCopy, LuCheck, LuCode } from "react-icons/lu";
 
 function CodeBlock({ code, language }) {
@@ -19,10 +19,10 @@ function CodeBlock({ code, language }) {
   };
 
   return (
-    <div className="bg-gray-800 p-4 rounded-xl my-4 relative shadow-md">
+    <div className="bg-gray-900/90 p-4 rounded-xl my-4 relative shadow-lg border border-gray-700">
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center text-gray-300">
-          <LuCode size={16} className="mr-2" />
+          <LuCode size={16} className="mr-2 text-indigo-400" />
           <span className="text-sm">{language || "Code"}</span>
         </div>
         <button
@@ -39,7 +39,7 @@ function CodeBlock({ code, language }) {
 
       <SyntaxHighlighter
         language={language}
-        style={oneLight}
+        style={oneDark}
         customStyle={{
           fontSize: "13px",
           margin: 0,
@@ -59,20 +59,14 @@ function CodeBlock({ code, language }) {
 const AIResponsePreview = ({ content }) => {
   if (!content) return null;
 
-  // Normalize to string
   let safeContent = "";
-  if (typeof content === "string") {
-    safeContent = content;
-  } else if (Array.isArray(content)) {
-    safeContent = content.join("\n\n");
-  } else if (typeof content === "object" && content !== null) {
+  if (typeof content === "string") safeContent = content;
+  else if (Array.isArray(content)) safeContent = content.join("\n\n");
+  else if (typeof content === "object" && content !== null)
     safeContent =
       content.explanation || content.text || JSON.stringify(content, null, 2);
-  } else {
-    safeContent = String(content);
-  }
+  else safeContent = String(content);
 
-  // Replace some raw HTML
   safeContent = safeContent
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>\s*<p>/gi, "\n\n")
@@ -80,9 +74,11 @@ const AIResponsePreview = ({ content }) => {
 
   return (
     <div
-      className="ai-response-preview p-6 
-                    bg-gradient-to-br from-gray-800/95 to-gray-900/95 
-                    text-gray-100 rounded-xl shadow-lg leading-relaxed"
+      className="ai-response-preview p-6
+                 bg-gradient-to-br from-gray-900/95 to-gray-800/95 
+                 text-gray-100 rounded-2xl shadow-2xl 
+                 leading-relaxed border border-gray-700
+                 transition-all duration-300 hover:shadow-indigo-500/40"
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
@@ -91,17 +87,17 @@ const AIResponsePreview = ({ content }) => {
             <p className="mb-3 text-gray-100 whitespace-pre-line">{children}</p>
           ),
           h1: ({ children }) => (
-            <h1 className="text-2xl font-bold mt-6 mb-4 text-indigo-400">
+            <h1 className="text-2xl font-bold mt-6 mb-4 text-indigo-400 drop-shadow-lg">
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-xl font-semibold mt-5 mb-3 text-indigo-300">
+            <h2 className="text-xl font-semibold mt-5 mb-3 text-indigo-300 drop-shadow-md">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-lg font-medium mt-4 mb-2 text-indigo-200">
+            <h3 className="text-lg font-medium mt-4 mb-2 text-indigo-200 drop-shadow-sm">
               {children}
             </h3>
           ),
@@ -117,7 +113,7 @@ const AIResponsePreview = ({ content }) => {
           ),
           li: ({ children }) => <li className="leading-relaxed">{children}</li>,
           blockquote: ({ children }) => (
-            <blockquote className="p-4 my-4 bg-gray-700/70 border-l-4 border-indigo-500 italic rounded-lg shadow-inner">
+            <blockquote className="p-4 my-4 bg-gray-800/70 border-l-4 border-indigo-500 italic rounded-lg shadow-inner text-gray-200">
               {children}
             </blockquote>
           ),
@@ -142,18 +138,18 @@ const AIResponsePreview = ({ content }) => {
             <img
               src={src}
               alt={alt}
-              className="max-w-full h-auto rounded-xl my-4 shadow-lg"
+              className="max-w-full h-auto rounded-2xl my-4 shadow-lg border border-gray-700"
             />
           ),
           table: ({ children }) => (
-            <div className="overflow-x-auto my-4 rounded-lg shadow-inner">
+            <div className="overflow-x-auto my-4 rounded-lg shadow-inner border border-gray-700">
               <table className="w-full table-auto border-collapse">
                 {children}
               </table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="px-3 py-2 text-left text-xs font-semibold text-indigo-300 bg-gray-700/50">
+            <th className="px-3 py-2 text-left text-xs font-semibold text-indigo-300 bg-gray-800/50">
               {children}
             </th>
           ),
