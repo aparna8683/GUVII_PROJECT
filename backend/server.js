@@ -28,6 +28,11 @@ app.use(express.json());
 connectDB()
 
 // Routes
+app.get("/",(req, res)=>{
+ res.send("Server is running")
+}
+        
+ )
 app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/questions", questionRoutes);
