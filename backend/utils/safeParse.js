@@ -1,26 +1,27 @@
 export function safeParseJSON(raw) {
-  if (!raw) return raw;
+  if (!raw || typeof raw !== "string") return null;
 
-  // Remove code block markers
-  let text = raw.replace(/^```json\s*/, "")
-                .replace(/^```/, "")
-                .replace(/```$/, "")
-                .trim();
+  let text = raw
+    .replace(/^```json\s*/i, "")
+    .replace(/^```/, "")
+    .replace(/```$/, "")
+    .trim();
 
-  // Replace literal newlines inside strings with \n
-  text = text.replace(/"\s*([^"]*?)\s*"/gs, (match) => {
-    return match.replace(/\n/g, "\\n");
-  });
+  const match = text.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+  if (!match) return null;
+
+  text = match[0];
+
+   
+  text = text
+    .replace(/\\'/g, "'")      
+    .replace(/\u2019/g, "'");  
 
   try {
     return JSON.parse(text);
-  } catch {
-    const match = text.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
-    if (match) {
-      try {
-        return JSON.parse(match[0]);
-      } catch {}
-    }
-    return raw;
+  } catch (err) {
+    console.error("JSON parse failed:", err.message);
+    console.error(text);
+    return null;
   }
 }
